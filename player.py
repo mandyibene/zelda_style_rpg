@@ -38,7 +38,7 @@ class Player(Entity):
         self.magic_switch_time = None
 
         # stats
-        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
+        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}  # initial stats
         self.health = self.stats['health']
         self.energy = self.stats['energy']
         self.exp = 123
@@ -176,9 +176,21 @@ class Player(Entity):
         weapon_damage = WEAPON_DATA[self.weapon]['damage']
         return base_damage + weapon_damage
 
+    def get_full_magic_damage(self):
+        base_damage = self.stats['magic']
+        spell_damage = MAGIC_DATA[self.magic]['strength']
+        return base_damage + spell_damage
+
+    def energy_recovery(self):
+        if self.energy < self.stats['energy']:
+            self.energy += 0.01 * self.stats['magic']
+        else:
+            self.energy = self.stats['energy']
+
     def update(self):
         self.input()
         self.cooldowns()
         self.get_status()
         self.animate()
         self.move(self.speed)
+        self.energy_recovery()
