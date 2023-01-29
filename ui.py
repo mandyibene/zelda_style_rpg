@@ -13,11 +13,18 @@ class UI:
         self.energy_bar_rect = pygame.Rect(10, 34, ENERGY_BAR_WIDTH, BAR_HEIGHT)
 
         # convert weapon dict
-        self.weapon_graphics = []
-        for weapon in WEAPON_DATA.values():
-            path = weapon['graphic']
-            weapon = pygame.image.load(path).convert_alpha()
-            self.weapon_graphics.append(weapon)
+        self.weapon_graphics = self.import_graphics(WEAPON_DATA)
+
+        # convert magic dict
+        self.magic_graphics = self.import_graphics(MAGIC_DATA)
+
+    def import_graphics(self, dictionary):
+        graphics = []
+        for item in dictionary.values():
+            path = item['graphic']
+            item = pygame.image.load(path).convert_alpha()
+            graphics.append(item)
+        return graphics
 
     def show_bar(self, current, max_amount, bg_rect, color):
         # draw bg
@@ -53,11 +60,14 @@ class UI:
 
         return bg_rect
 
-    def weapon_overlay(self, weapon_index, has_switched):
-        bg_rect = self.selection_box(10, 610, has_switched)
-        weapon_surf = self.weapon_graphics[weapon_index]
-        weapon_rect = weapon_surf.get_rect(center=bg_rect.center)
-        self.display_surface.blit(weapon_surf, weapon_rect)
+    def display_overlay(self, left, top, style, index, has_switched):
+        bg_rect = self.selection_box(left, top, has_switched)
+        if style == 'weapon':
+            surf = self.weapon_graphics[index]
+        else:
+            surf = self.magic_graphics[index]
+        rect = surf.get_rect(center=bg_rect.center)
+        self.display_surface.blit(surf, rect)
 
     def display(self, player):
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
@@ -65,5 +75,5 @@ class UI:
 
         self.show_exp(player.exp)
 
-        self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
-        # self.selection_box(80, 630)  # magic
+        self.display_overlay(10, 610, 'weapon', player.weapon_index, not player.can_switch_weapon)
+        self.display_overlay(80, 630, 'magic', player.magic_index, not player.can_switch_magic)
