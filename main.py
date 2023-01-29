@@ -2,6 +2,7 @@ import pygame
 import sys
 from settings import *
 from level import Level
+from support import import_folder
 
 
 class Game:
