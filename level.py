@@ -4,10 +4,11 @@ from tile import Tile
 from player import Player
 from debug import debug
 import support
-from random import choice
+from random import choice, randint
 from weapon import Weapon
 from ui import UI
 from enemy import Enemy
+from particles import AnimationPlayer
 
 
 class Level:
@@ -29,6 +30,9 @@ class Level:
 
         # user interface
         self.ui = UI()
+
+        # particle
+        self.animation_player = AnimationPlayer()
 
     def create_map(self):
         layouts = {
@@ -80,7 +84,7 @@ class Level:
                                 else:
                                     monster_name = 'squid'
                                 Enemy(monster_name, (x, y), [self.visible_sprites, self.attackable_sprites],
-                                      self.obstacle_sprites, self.damage_player)
+                                      self.obstacle_sprites, self.damage_player, self.trigger_death_particles)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
@@ -102,6 +106,10 @@ class Level:
                 if collision_sprites:
                     for target_sprite in collision_sprites:
                         if target_sprite.sprite_type == 'grass':
+                            pos = target_sprite.rect.center
+                            offset = pygame.math.Vector2(0, 75)
+                            for leaf in range(randint(3, 6)):
+                                self.animation_player.create_grass_particles(pos - offset, [self.visible_sprites])
                             target_sprite.kill()
                         else:
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
@@ -111,8 +119,10 @@ class Level:
             self.player.health -= amount
             self.player.vulnerable = False
             self.player.hurt_time = pygame.time.get_ticks()
+            self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
 
-            # spawn particles
+    def trigger_death_particles(self, particle_type, pos):
+        self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
 
     def run(self):
         # update and draw the game
