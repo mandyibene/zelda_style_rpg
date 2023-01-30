@@ -9,8 +9,12 @@ class MagicPlayer:
 
     def heal(self, player, strength, cost, groups):
         if player.energy >= cost:
+            sound = pygame.mixer.Sound(MAGIC_DATA['heal']['sound'])
+            sound.set_volume(0.1)
+            sound.play()
             player.health += strength
             player.energy -= cost
+
             if player.health >= player.stats['health']:
                 player.health = player.stats['health']
             self.animation_player.create_particles('aura', player.rect.center, groups)
@@ -19,6 +23,9 @@ class MagicPlayer:
 
     def flame(self, player, cost, groups):
         if player.energy >= cost:
+            sound = pygame.mixer.Sound(MAGIC_DATA['flame']['sound'])
+            sound.set_volume(0.1)
+            sound.play()
             player.energy -= cost
 
             direction = player.status.split('_')[0]
